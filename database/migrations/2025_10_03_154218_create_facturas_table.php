@@ -13,15 +13,14 @@ return new class extends Migration
     {
         Schema::create('facturas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('cliente_id')->constrained();
-            $table->date('fecha');
-            $table->decimal('total', 10, 2);
-            //$table->unsignedBigInteger('cliente_id');
-            //$table->foreign('cliente_id')->references('id')->on('clientes');
-            $table->string('tipopago');
-            $table->decimal('saldopendiente', 10, 2)->nullable();
+            $table->foreignId('cliente_id')->constrained('clientes'); // Asumiendo una tabla 'clientes'
+            $table->string('nFactura')->unique();
             $table->string('estado');
-            $table->string('registradopor');
+            $table->decimal('descuentoTotal', 8, 2);
+            $table->decimal('total', 10, 2);
+            $table->string('pago');
+            $table->string('metodoDePago');
+            $table->string('registradoPor')->nullable();
             $table->timestamps();
         });
     }

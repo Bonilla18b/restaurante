@@ -13,16 +13,9 @@ return new class extends Migration
     {
         Schema::create('clientes', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre', 100);
-            $table->string('apellido');
-            $table->string('documento', 20)->unique(); 
-            $table->string('email')->unique()->nullable(); 
-            $table->string('telefono', 20)->nullable();
-            $table->string('direccion')->nullable();
-            $table->string('ciudad')->nullable();
-            $table->string('pais')->nullable();
-            $table->string('estado');
-            $table->string('registradopor')->nullable(); 
+            $table->foreignId('persona_id')->constrained('personas');
+            $table->string('direccion');
+            $table->string('registradoPor')->nullable();
             $table->timestamps();
         });
     }

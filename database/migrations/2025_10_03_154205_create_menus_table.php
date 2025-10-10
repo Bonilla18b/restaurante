@@ -11,17 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('products', function (Blueprint $table) {
+        Schema::create('menus', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');
-            $table->decimal('precioventa',8,2);
-            $table->decimal('preciocompra',8,2);
+            $table->string('nombre')->unique();
             $table->text('descripcion')->nullable();
-            $table->integer('stock');
-            $table->string('StockMinino');
-            $table->string('imagen');
-            $table->string('estado');
-            $table->string('registradopor');
+            $table->decimal('precio', 8, 2);
+            $table->boolean('disponibilidad')->default(true);
+            $table->string('registradoPor')->nullable();
             $table->timestamps();
         });
     }
@@ -31,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('products');
+        Schema::dropIfExists('menus');
     }
 };
