@@ -1,21 +1,25 @@
 <?php
 
-namespace App\Models;
+namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\UsiarioSistema;
+use App\Models\Empleado;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Hash;
 
-class UsuarioSistema extends Model
+class UsuarioSistemaFactory extends Factory
 {
-    use HasFactory;
-    
-    protected $table = 'usuarios_sistema';
-    protected $fillable = ['empleado_id', 'username', 'password', 'registradoPor'];
-    protected $hidden = ['password']; // Ocultar el password en arrays/JSON
-
-    // Un UsuarioSistema pertenece a un Empleado
-    public function empleado()
+    public function definition(): array
     {
-        return $this->belongsTo(Empleado::class, 'empleado_id');
+        
+        $username = $this->faker->userName(); 
+
+        return [
+            
+            'empleado_id' => Empleado::factory(), 
+            'username' => $this->faker->unique()->userName(),
+            'password' => Hash::make('password'), 
+            'registradoPor' => $this->faker->name(),
+        ];
     }
 }

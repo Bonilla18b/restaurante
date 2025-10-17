@@ -23,9 +23,9 @@ class Empleado extends Model
         return $this->hasOne(UsuarioSistema::class, 'empleado_id');
     }
 
-    // Un Empleado puede tener varios Contratos
+    // Un Empleado puede tener un contrato
     public function contratos()
     {
-        return $this->hasMany(Contrato::class, 'empleado_id');
+        return $this->hasOne(Contrato::class, 'empleado_id');
     }
 }
