@@ -2,22 +2,24 @@
 
 namespace Database\Factories;
 
+use App\Models\Pedido;
+use App\Models\Menu;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Pedido>
- */
 class PedidoFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
+        $subtotal = $this->faker->randomFloat(2, 10, 200);
+
         return [
-            //
+            // **Usando Menu como placeholder, aunque el detalle lleva el peso**
+            'producto_id' => Menu::factory(), 
+            'fechaPedido' => $this->faker->dateTimeBetween('-1 month', 'now')->format('Y-m-d'),
+            'estado' => $this->faker->randomElement(['Pendiente', 'En Cocina', 'Entregado', 'Cancelado']),
+            'subtotal' => $subtotal,
+            'mesa' => $this->faker->numberBetween(1, 20),
+            'registradoPor' => $this->faker->name(),
         ];
     }
 }
