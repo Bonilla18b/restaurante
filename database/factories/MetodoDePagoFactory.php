@@ -10,7 +10,7 @@ class MetodoDePagoFactory extends Factory
     public function definition(): array
     {
         return [
-            'nombre' => $this->faker->unique()->randomElement(['Efectivo', 'Transferencia', 'Tarjeta Crédito', 'Tarjeta Débito', 'Crédito Proveedor']),
-        ];
+        'nombre' => $this->faker->randomElement(['Efectivo', 'Transferencia', 'Tarjeta Crédito', 'Tarjeta Débito', 'Crédito Proveedor']),
+    ];
     }
 }

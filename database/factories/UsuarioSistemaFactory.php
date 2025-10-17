@@ -2,22 +2,24 @@
 
 namespace Database\Factories;
 
+use App\Models\UsiarioSistema;
+use App\Models\Empleado;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Hash;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\UsuarioSistema>
- */
 class UsuarioSistemaFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
+        
+        $username = $this->faker->userName(); 
+
         return [
-            //
+            
+            'empleado_id' => Empleado::factory(), 
+            'username' => $this->faker->unique()->userName(),
+            'password' => Hash::make('password'), 
+            'registradoPor' => $this->faker->name(),
         ];
     }
 }

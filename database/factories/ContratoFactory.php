@@ -18,7 +18,8 @@ class ContratoFactory extends Factory
             'empleado_id' => Empleado::factory(),
             'tipoContrato' => $this->faker->randomElement(['Indefinido', 'Fijo', 'Servicios']),
             'fechaInicio' => $this->faker->dateTimeBetween('-2 years', 'now')->format('Y-m-d'),
-            'fechaFin' => $this->faker->optional(0.7)->dateTimeBetween('now', '+1 year')->format('Y-m-d'), // Opcional (70% de probabilidad de tener fecha fin)
+            'fechaFin' => $this->faker->optional(0.7, null)->passthrough(
+                $this->faker->dateTimeBetween('now', '+1 year')->format('Y-m-d')),
             'estadoContrato' => $this->faker->randomElement(['Vigente', 'Finalizado', 'Renovación']),
             'salario' => $salario,
         ];
