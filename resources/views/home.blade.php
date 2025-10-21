@@ -22,7 +22,7 @@
 @stop
 
 @section('css')
-    {{-- Estilos extra si los necesitas --}}
+    //estiilos 
 @stop
 
 @section('js')
