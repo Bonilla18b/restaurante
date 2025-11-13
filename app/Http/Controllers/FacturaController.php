@@ -2,63 +2,70 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Factura;
+use App\Models\Cliente;
 use Illuminate\Http\Request;
 
 class FacturaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $facturas = Factura::with('cliente.persona')->get();
+        return view('facturas.index', compact('facturas'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $clientes = Cliente::with('persona')->get();
+        return view('facturas.create', compact('clientes'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'cliente_id' => 'required|exists:clientes,id',
+            'nFactura' => 'required|string|unique:facturas,nFactura|max:50',
+            'estado' => 'required|string|in:Emitida,Pagada,Anulada',
+            'descuentoTotal' => 'nullable|numeric|min:0',
+            'total' => 'required|numeric|min:0',
+            'pago' => 'required|string|in:Contado,Crédito',
+            'metodoDePago' => 'required|string|max:100',
+            'registradoPor' => 'nullable|string|max:100',
+        ]);
+
+        Factura::create($validated);
+        return redirect()->route('facturas.index')->with('success', 'Factura creada.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Factura $factura)
     {
-        //
+        $factura->load('detallesFactura');
+        return view('facturas.show', compact('factura'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Factura $factura)
     {
-        //
+        $clientes = Cliente::with('persona')->get();
+        return view('facturas.edit', compact('factura', 'clientes'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Factura $factura)
     {
-        //
+        $validated = $request->validate([
+            'estado' => 'required|string|in:Emitida,Pagada,Anulada',
+            'descuentoTotal' => 'nullable|numeric|min:0',
+            'total' => 'required|numeric|min:0',
+            'pago' => 'required|string|in:Contado,Crédito',
+            'metodoDePago' => 'required|string|max:100',
+        ]);
+
+        $factura->update($validated);
+        return redirect()->route('facturas.index')->with('success', 'Factura actualizada.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Factura $factura)
     {
-        //
+        $factura->delete();
+        return redirect()->route('facturas.index')->with('success', 'Factura eliminada.');
     }
 }

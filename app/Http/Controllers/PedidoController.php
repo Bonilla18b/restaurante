@@ -2,63 +2,66 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pedido;
+use App\Models\Menu;
 use Illuminate\Http\Request;
 
 class PedidoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $pedidos = Pedido::all();
+        return view('pedidos.index', compact('pedidos'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        // En una aplicación real, esto manejaría una interfaz de punto de venta (POS)
+        $menus = Menu::where('disponibilidad', true)->get();
+        return view('pedidos.create', compact('menus')); 
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            // En una aplicación real, los detalles se guardarían juntos en una transacción
+            'mesa' => 'required|integer|min:1',
+            'estado' => 'required|string|in:Pendiente,En Cocina,Entregado,Cancelado',
+            'subtotal' => 'required|numeric|min:0',
+            'registradoPor' => 'nullable|string|max:100',
+        ]);
+
+        Pedido::create($validated);
+        return redirect()->route('pedidos.index')->with('success', 'Pedido creado.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Pedido $pedido)
     {
-        //
+        $pedido->load('detallesPedido.menu'); 
+        return view('pedidos.show', compact('pedido'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Pedido $pedido)
     {
-        //
+        $menus = Menu::all();
+        return view('pedidos.edit', compact('pedido', 'menus'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Pedido $pedido)
     {
-        //
+        $validated = $request->validate([
+            'mesa' => 'required|integer|min:1',
+            'estado' => 'required|string|in:Pendiente,En Cocina,Entregado,Cancelado',
+            // El subtotal debería recalcularse a partir de los detalles, no tomarse directamente.
+        ]);
+
+        $pedido->update($validated);
+        return redirect()->route('pedidos.index')->with('success', 'Pedido actualizado.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Pedido $pedido)
     {
-        //
+        $pedido->delete();
+        return redirect()->route('pedidos.index')->with('success', 'Pedido eliminado.');
     }
 }

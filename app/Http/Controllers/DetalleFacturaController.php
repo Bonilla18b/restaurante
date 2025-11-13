@@ -2,63 +2,54 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DetalleFactura;
+use App\Models\Factura;
 use Illuminate\Http\Request;
 
 class DetalleFacturaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Factura $factura)
     {
-        //
+        $detalles = $factura->detallesFactura;
+        return view('detalles_factura.index', compact('factura', 'detalles'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(Request $request, Factura $factura)
     {
-        //
+        $validated = $request->validate([
+            'cantidad' => 'required|integer|min:1',
+            'precioUnitario' => 'required|numeric|min:0.01',
+            'descuento' => 'nullable|numeric|min:0',
+            // No validar subtotal, se calcula
+        ]);
+        
+        $subtotal = $validated['cantidad'] * $validated['precioUnitario'];
+
+        $factura->detallesFactura()->create([
+            'cantidad' => $validated['cantidad'],
+            'precioUnitario' => $validated['precioUnitario'],
+            'subtotal' => $subtotal,
+            'descuento' => $validated['descuento'] ?? 0,
+            // 'registradoPor'
+        ]);
+        
+        // **IMPORTANTE**: Recalcular el total de la Factura
+        // Lógica para actualizar factura.total...
+        $factura->recalculateTotal(); // Asumiendo que agregas este método al modelo Factura
+
+        return redirect()->route('facturas.show', $factura)->with('success', 'Detalle agregado a la factura.');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    // ... show, edit, update, destroy con lógica anidada y recalculo de total ...
+    public function destroy(Factura $factura, DetalleFactura $detalle)
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        if ($detalle->factura_id !== $factura->id) {
+            abort(404);
+        }
+        $detalle->delete();
+        
+        $factura->recalculateTotal(); // Asumiendo que agregas este método al modelo Factura
+        
+        return redirect()->route('facturas.show', $factura)->with('success', 'Detalle eliminado de la factura.');
     }
 }

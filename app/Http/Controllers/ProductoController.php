@@ -2,63 +2,67 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Producto;
+use App\Models\Proveedor;
 use Illuminate\Http\Request;
 
 class ProductoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $productos = Producto::with('proveedor')->get();
+        return view('productos.index', compact('productos'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $proveedores = Proveedor::all();
+        return view('productos.create', compact('proveedores'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'proveedor_id' => 'required|exists:proveedores,id',
+            'nombre' => 'required|string|max:255',
+            'unidadMedida' => 'required|string|max:50',
+            'stock' => 'required|integer|min:0',
+            'stockMinimo' => 'required|integer|min:0',
+            'registradoPor' => 'nullable|string|max:100',
+        ]);
+
+        Producto::create($validated);
+        return redirect()->route('productos.index')->with('success', 'Producto creado.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Producto $producto)
     {
-        //
+        return view('productos.show', compact('producto'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Producto $producto)
     {
-        //
+        $proveedores = Proveedor::all();
+        return view('productos.edit', compact('producto', 'proveedores'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Producto $producto)
     {
-        //
+        $validated = $request->validate([
+            'proveedor_id' => 'required|exists:proveedores,id',
+            'nombre' => 'required|string|max:255',
+            'unidadMedida' => 'required|string|max:50',
+            'stock' => 'required|integer|min:0',
+            'stockMinimo' => 'required|integer|min:0',
+        ]);
+
+        $producto->update($validated);
+        return redirect()->route('productos.index')->with('success', 'Producto actualizado.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Producto $producto)
     {
-        //
+        $producto->delete();
+        return redirect()->route('productos.index')->with('success', 'Producto eliminado.');
     }
 }

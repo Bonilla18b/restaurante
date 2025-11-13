@@ -2,63 +2,67 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Contrato;
+use App\Models\Empleado;
 use Illuminate\Http\Request;
 
 class ContratoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $contratos = Contrato::with('empleado.persona')->get();
+        return view('contratos.index', compact('contratos'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $empleados = Empleado::all(); 
+        return view('contratos.create', compact('empleados'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'empleado_id' => 'required|exists:empleados,id',
+            'tipoContrato' => 'required|string|max:100',
+            'fechaInicio' => 'required|date',
+            'fechaFin' => 'nullable|date|after:fechaInicio',
+            'estadoContrato' => 'required|string|in:Vigente,Finalizado,Renovación',
+            'salario' => 'required|numeric|min:0',
+        ]);
+
+        Contrato::create($validated);
+        return redirect()->route('contratos.index')->with('success', 'Contrato creado.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Contrato $contrato)
     {
-        //
+        return view('contratos.show', compact('contrato'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Contrato $contrato)
     {
-        //
+        $empleados = Empleado::all();
+        return view('contratos.edit', compact('contrato', 'empleados'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Contrato $contrato)
     {
-        //
+        $validated = $request->validate([
+            'tipoContrato' => 'required|string|max:100',
+            'fechaInicio' => 'required|date',
+            'fechaFin' => 'nullable|date|after:fechaInicio',
+            'estadoContrato' => 'required|string|in:Vigente,Finalizado,Renovación',
+            'salario' => 'required|numeric|min:0',
+        ]);
+
+        $contrato->update($validated);
+        return redirect()->route('contratos.index')->with('success', 'Contrato actualizado.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Contrato $contrato)
     {
-        //
+        $contrato->delete();
+        return redirect()->route('contratos.index')->with('success', 'Contrato eliminado.');
     }
 }

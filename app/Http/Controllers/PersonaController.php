@@ -2,63 +2,70 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Persona;
 use Illuminate\Http\Request;
 
 class PersonaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Mostrar lista de Personas
     public function index()
     {
-        //
+        $personas = Persona::all();
+        return view('personas.index', compact('personas'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    // Mostrar formulario de creación
     public function create()
     {
-        //
+        return view('personas.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Almacenar nueva Persona
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'apellido' => 'required|string|max:255',
+            'documento' => 'required|string|unique:personas,documento|max:50',
+            'telefono' => 'nullable|string|max:20',
+            'email' => 'nullable|email|unique:personas,email|max:255',
+        ]);
+
+        Persona::create($validated);
+        return redirect()->route('personas.index')->with('success', 'Persona creada correctamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    // Mostrar una Persona específica (Route Model Binding)
+    public function show(Persona $persona)
     {
-        //
+        return view('personas.show', compact('persona'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    // Mostrar formulario de edición
+    public function edit(Persona $persona)
     {
-        //
+        return view('personas.edit', compact('persona'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    // Actualizar Persona
+    public function update(Request $request, Persona $persona)
     {
-        //
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'apellido' => 'required|string|max:255',
+            'documento' => 'required|string|unique:personas,documento,' . $persona->id . '|max:50',
+            'telefono' => 'nullable|string|max:20',
+            'email' => 'nullable|email|unique:personas,email,' . $persona->id . '|max:255',
+        ]);
+
+        $persona->update($validated);
+        return redirect()->route('personas.index')->with('success', 'Persona actualizada correctamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    // Eliminar Persona
+    public function destroy(Persona $persona)
     {
-        //
+        $persona->delete();
+        return redirect()->route('personas.index')->with('success', 'Persona eliminada.');
     }
 }
